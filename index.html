@@ -1,0 +1,226 @@
+<html>
+	<html>
+		<head>
+			<meta charset="utf-8">
+			<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+			<title>ArcGIS Maps SDK for JavaScript</title>
+			<style>
+				html,
+				body,
+				#viewDiv {
+					padding: 0;
+					margin: 0;
+					height: 100%;
+					width: 100%;
+				}
+			</style>
+			<link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/light/main.css">
+			<script src="https://js.arcgis.com/4.25/"></script>
+			<script>
+				require([
+					"esri/config",
+					"esri/Map",
+					"esri/views/MapView",
+					"esri/layers/GeoJSONLayer"
+					"esri/renderers/SimpleRenderer",
+					"esri/symbols/SimpleMarkerSymbol",
+					"esri/Color",
+					"esri/symbols/SimpleLineSymbol",
+					"esri/Graphic",
+					"esri/layers/GraphicsLayer"
+					"esri/renderers/support/UniqueValueInfo",
+					"esri/smartMapping/renderers/color",
+					"esri/widgets/Legend"
+
+				], function(esriConfig, Map, MapView, GeoJSONLayer,SimpleRenderer, SimpleMarkerSymbol,
+                Color,SimpleLineSymbolGraphic, GraphicsLayer,UniqueValueInfo,
+                colorRendererCreator,Legend) {
+
+					esriConfig.apiKey =
+						"AAPK56e3ac027f044c4089d8ceec232fc05dYaOuzVRzm8tMRqvzOvDvIEevbqJ85yppn9PacU6cy4duurJrVK9wo_8BcWO8i8bi";
+
+					const url =
+						"https://cxqttkl.github.io/web4gis15/china_simplify.json";
+
+					// Paste the url into a browser's address bar to download and view the attributes
+					// in the GeoJSON file.
+
+
+					const geojsonLayer = new GeoJSONLayer({
+						url: url,
+						blendMode: "source-in"
+					});
+
+					const map = new Map({
+						basemap: "arcgis-imagery" //Basemap layer service
+					});
+
+					const view = new MapView({
+						map: map,
+						center: [101.214534, 28.520338], //Longitude, latitude
+						zoom: 13,
+						container: "viewDiv"
+					});
+
+					const graphicsLayer = new GraphicsLayer();
+					map.add(graphicsLayer);
+
+					const point = { //Create a point
+						type: "point",
+
+						longitude: 101.155534,
+						latitude: 28.532652
+					};
+					const simpleMarkerSymbol = {
+						type: "simple-marker",
+						color: [255, 0, 0, 0.8], // red
+						outline: {
+							color: [255, 255, 255], // White
+							width: 1
+						}
+					};
+
+					const pointGraphic = new Graphic({
+						geometry: point,
+						symbol: simpleMarkerSymbol
+					});
+					graphicsLayer.add(pointGraphic);
+
+					const points = { //Create a point
+						type: "point",
+
+						longitude: 101.201239,
+						latitude: 28.511451
+					};
+					const simpleMarkerSymbol1 = {
+						type: "simple-marker",
+						color: [255, 255, 0, 0.8], // yellow
+						outline: {
+							color: [255, 255, 255], // White
+							width: 1
+						}
+					};
+
+					const pointGraphics = new Graphic({
+						geometry: points,
+						symbol: simpleMarkerSymbol1
+					});
+					graphicsLayer.add(pointGraphics);
+
+
+
+					// Create a line geometry
+					const polyline = {
+						type: "polyline",
+						paths: [
+							[101.207576, 28.540395], //Longitude, latitude
+							[101.191766, 28.51526], //Longitude, latitude
+							[101.195678, 28.498246] //Longitude, latitude
+						]
+					};
+					const simpleLineSymbol = {
+						type: "simple-line",
+						color: [226, 119, 40], // Orange
+						width: 2
+					};
+
+					const polylineGraphic = new Graphic({
+						geometry: polyline,
+						symbol: simpleLineSymbol
+					});
+					graphicsLayer.add(polylineGraphic);
+
+					const polylines = {
+						type: "polyline",
+						paths: [
+							[101.23401, 28.510436], //Longitude, latitude
+							[101.221649, 28.501675], //Longitude, latitude
+							[101.137568, 28.473737] //Longitude, latitude
+
+						]
+					};
+					const simpleLineSymbol2 = {
+						type: "simple-line",
+						color: [0, 0, 255], // blue
+						width: 2
+					};
+
+					const polylineGraphics = new Graphic({
+						geometry: polylines,
+						symbol: simpleLineSymbol2
+					});
+					graphicsLayer.add(polylineGraphics);
+
+
+
+					// Create a polygon geometry
+					const polygon = {
+						type: "polygon",
+						rings: [
+							[101.224669, 28.574492], //Longitude, latitude
+							[101.191766, 28.51526], //Longitude, latitude
+							[101.197648, 28.497825], //Longitude, latitude
+							[101.146193, 28.49046], //Longitude, latitude
+							[101.140731, 28.566117] //Longitude, latitude
+						]
+					};
+
+					const simpleFillSymbol = {
+						type: "simple-fill",
+						color: [151, 166, 102, 0.5], // Orange, opacity 80%
+						outline: {
+							color: [255, 255, 255],
+							width: 1
+						}
+					};
+
+					const popupTemplate = {
+						title: "{Name}",
+						content: "{Description}"
+					}
+					const attributes = {
+						Name: "Graphic",
+						Description: "I am a polygon"
+					}
+
+					const polygonGraphic = new Graphic({
+						geometry: polygon,
+						symbol: simpleFillSymbol,
+
+						attributes: attributes,
+						popupTemplate: popupTemplate
+
+					});
+					graphicsLayer.add(polygonGraphic);
+
+
+                let legend = new Legend({
+                  view: view
+                });
+
+                view.ui.add(legend, "bottom-right");
+            
+                view.on('click',function(evt){
+                   
+                        //点击，显示智能制图API
+                    let colorParams = {
+                      layer: earthquakeLayer,
+                      view: view,
+                      field: "mag",
+                      //normalizationField: "TOTPOP_CY",
+                      classificationMethod: "natural-breaks",
+                      numClasses: 5
+                    };
+
+                // when the promise resolves, apply the renderer to the layer
+                colorRendererCreator.createClassBreaksRenderer(colorParams)
+                  .then(function(response){
+                    earthquakeLayer.renderer = response.renderer;
+                  });
+				});
+			</script>
+		</head>
+		<body>
+			<div id="viewDiv"></div>
+		</body>
+	</html>
